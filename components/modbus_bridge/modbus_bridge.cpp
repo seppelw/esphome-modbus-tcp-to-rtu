@@ -40,7 +40,7 @@ void ModBusBridgeComponent::loop() {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void ModBusBridgeComponent::dump_config() {
     ESP_LOGCONFIG(TAG, "ModBus Bridge:");
-    ESP_LOGCONFIG(TAG, "  Address: %s:%u", esphome::network::get_use_address().c_str(), this->port_);
+    ESP_LOGCONFIG(TAG, "  Address: %s:%u", esphome::network::get_use_address(), this->port_);
     ESP_LOGCONFIG(TAG, "  ModBus timeout: %d ms", this->timeout_);
     ESP_LOGCONFIG(TAG, "  UART buffer: %d bytes", this->buf_size_);
 #ifdef USE_BINARY_SENSOR
