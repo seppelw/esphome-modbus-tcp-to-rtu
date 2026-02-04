@@ -81,7 +81,29 @@ void ModBusBridgeComponent::accept()
         return;
 
     socket->setblocking(false);
-    std::string identifier = socket->getpeername();
+    //std::string identifier = socket->getpeername();
+
+    struct sockaddr_storage storage;
+    socklen_t len = sizeof(storage);
+    socket->getpeername((struct sockaddr*)&storage, &len);
+    std::string identifier;
+
+    char str[INET6_ADDRSTRLEN];
+        if (storage.ss_family == AF_INET) {
+            struct sockaddr_in *addr = (struct sockaddr_in *)&storage;
+            inet_ntop(AF_INET, &(addr->sin_addr), str, INET_ADDRSTRLEN);
+            identifier = std::string(str);
+            }
+       else if (storage.ss_family == AF_INET6) {
+            struct sockaddr_in6 *addr = (struct sockaddr_in6 *)&storage;
+            inet_ntop(AF_INET6, &(addr->sin6_addr), str, INET6_ADDRSTRLEN);
+            identifier = std::string(str);
+        }
+       else {
+            identifier = "Unknown";
+        }
+
+
     this->clients_.emplace_back(std::move(socket), identifier);
     ESP_LOGI(TAG, "New client connected from %s", identifier.c_str());
     this->publish_sensor();
