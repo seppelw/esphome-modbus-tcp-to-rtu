@@ -10,10 +10,11 @@ Usage
 -----
 
 Requires ESPHome v2022.3.0 or newer.
+Just Adapted to ESPHome 2026.2.x
 
 ```yaml
 external_components:
-  - source: github://Pluimvee/esphome-modbus-tcp-to-rtu
+  - source: github://seppelw/esphome-modbus-tcp-to-rtu
 
 modbus_bridge:
 ```
