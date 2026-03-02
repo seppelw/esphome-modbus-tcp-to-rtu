@@ -81,15 +81,11 @@ void ModBusBridgeComponent::accept()
         return;
 
     socket->setblocking(false);
-    struct sockaddr_storage storage;
-    socklen_t len = sizeof(storage);
-    socket->getpeername((struct sockaddr*)&storage, &len);
-    std::string identifier = socket->getpeername();
 
-    this->clients_.emplace_back(std::move(socket), identifier);
-    ESP_LOGI(TAG, "New client connected from %s", identifier.c_str());
-    this->publish_sensor();
-
+    
+    char peername[esphome::socket::SOCKADDR_STR_LEN];
+    socket->getpeername_to(peername);
+    std::string identifier = peername;
 
     this->clients_.emplace_back(std::move(socket), identifier);
     ESP_LOGI(TAG, "New client connected from %s", identifier.c_str());
