@@ -4,11 +4,30 @@
 #include "esphome/core/log.h"
 #include "esphome/core/util.h"
 #include "esphome/core/version.h"
+#include <array>
+#include <string>
+#include <type_traits>
+#include <utility>
 
 #include "esphome/components/network/util.h"
 #include "esphome/components/socket/socket.h"
 
 static const char *TAG = "ModBus_bridge";
+
+namespace {
+
+const char *get_use_address_c_str() {
+#if ESPHOME_VERSION_CODE >= VERSION_CODE(2026, 0, 0)
+  static std::array<char, esphome::network::USE_ADDRESS_BUFFER_SIZE> buf;
+  return esphome::network::get_use_address_to(buf);
+#else
+  static std::string addr;
+  addr = esphome::network::get_use_address();
+  return addr.c_str();
+#endif
+}
+
+}  // namespace
 
 using namespace esphome;
 
@@ -40,7 +59,7 @@ void ModBusBridgeComponent::loop() {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void ModBusBridgeComponent::dump_config() {
     ESP_LOGCONFIG(TAG, "ModBus Bridge:");
-    ESP_LOGCONFIG(TAG, "  Address: %s:%u", esphome::network::get_use_address(), this->port_);
+    ESP_LOGCONFIG(TAG, "  Address: %s:%u", get_use_address_c_str(), this->port_);
     ESP_LOGCONFIG(TAG, "  ModBus timeout: %d ms", this->timeout_);
     ESP_LOGCONFIG(TAG, "  UART buffer: %d bytes", this->buf_size_);
 #ifdef USE_BINARY_SENSOR
@@ -83,9 +102,7 @@ void ModBusBridgeComponent::accept()
     socket->setblocking(false);
 
     
-    char peername[esphome::socket::SOCKADDR_STR_LEN];
-    socket->getpeername_to(peername);
-    std::string identifier = peername;
+    std::string identifier = socket->getpeername();
 
     this->clients_.emplace_back(std::move(socket), identifier);
     ESP_LOGI(TAG, "New client connected from %s", identifier.c_str());
@@ -224,7 +241,7 @@ void ModBusBridgeComponent::exchange()
 //            LOG_BYTES(TAG, "Received <<<", socket_buf, socket_read_len);
             // Step 2: Send the data to the UART
             this->modbus_tcp_to_rtu(socket_buf, socket_read_len);
-            this->uart_->flush();       // empty UART as we will write new data
+            (void)this->uart_->flush(); // empty UART as we will write new data
             this->uart_buf_.clear();    // clear the buffer
             this->uart_->write_array(socket_buf, socket_read_len);
 
