@@ -10,7 +10,7 @@ Usage
 -----
 
 Requires ESPHome v2022.3.0 or newer.
-Just Adapted to ESPHome 2026.2.x
+Adapted for ESPHome 2026.7.4 and newer.
 
 ```yaml
 external_components:
