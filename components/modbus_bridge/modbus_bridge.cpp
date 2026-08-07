@@ -102,7 +102,7 @@ void ModBusBridgeComponent::accept()
     socket->setblocking(false);
 
     
-    std::string identifier = \"client_\" + std::to_string(this->clients_.size());
+    std::string identifier = "client_" + std::to_string(this->clients_.size());
 
     this->clients_.emplace_back(std::move(socket), identifier);
     ESP_LOGI(TAG, "New client connected from %s", identifier.c_str());
